@@ -1,6 +1,6 @@
 HS_gene	Human gene id
 Description	Human gene description
-HS	Human transcript id
+HS	Human transcript id / Ortholog family id
 GG	Gorilla transcript id
 NL	Gibbon transcript id
 PT	Chimpanzee transcript id
