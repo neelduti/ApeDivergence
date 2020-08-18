@@ -6,3 +6,5 @@
 ‘Html’ folder includes alignments, of all candidates listed in Table 3, in the HTML format that can be viewed in any web-browser.
 
 'FiguresAndAnalysis.py' file has the code for all the anlysis done and plots generated in the publication.
+
+'Supplemental - Frequent branch-specific changes of protein substitution rates in closely related lineages.pdf' contains supplemental text, figure, and tables indicated in the main text.
