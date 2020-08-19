@@ -22,7 +22,6 @@ parser.add_argument('-I', '--sp_id_file', default = 'Id.txt')
 parser.add_argument('-F', '--fasta_dir', default = '../data/primTran', help = 'folder containing fasta files')
 parser.add_argument('-P', '--pep_suf', default = 'peptide.fa')
 parser.add_argument('-o', '--out_fol', default = '../data/msa', help = 'folder that will have the output')
-parser.add_argument('-a', '--ancestral', default = 0)
 args = vars(parser.parse_args()) #parse arguments 
 
 """Functions"""
@@ -114,10 +113,6 @@ def MSA(CommonDf):
     ConcatHTMLfl = "{}/Gblocks.html".format(OutFocalSpDataDir)
     os.popen(r"echo -n > {}".format(ConcatHTMLfl)).read()
     
-    #remove if combined ancestral events file exists
-    # ConcatAncEventsFl = "{}/AncEvents.txt".format(OutFocalSpDataDir)
-    # os.popen(r"echo -n > {}".format(ConcatAncEventsFl)).read()
-    
     
     n = 0
     for indx, row in CommonDf.iterrows():
@@ -171,48 +166,7 @@ def MSA(CommonDf):
                  sed -i 's/Gblocks 0.91b Results/{}/g' tmp.aln.mafft.fa-gb.htm
                  cat tmp.aln.mafft.fa-gb.htm >> {}
                  """.format(indx, ConcatHTMLfl)).read()
-        
-        # #run prank to extract ancestral events (-keep)
-        # if int(args['ancestral']) == 1: 
-        #     os.popen(r"""    
-        #              prank -d=tmp.aln.mafft.fa-gb -t=tmp.tree.nwk -o=tmp.prank.aln.fa -showanc -showevents -once -keep
-        #              """).read()
-        # #check if ancestral events file is generate, this file is not generated if there are no sunstituions to report
-        # if int(args['ancestral']) == 1 and os.popen(r"ls tmp.prank.aln.fa.events").read() != '':   
-        #     alignmnt = AlignIO.read('tmp.prank.aln.fa.anc.fas', 'fasta')
-        #     alignDf = pd.DataFrame(np.array([list(rec) for rec in alignmnt])).transpose()
-        #     #write to alignment file
-        #     FastaIdLs = [x.id for x in alignmnt]
-        #     WriteToAllAlignmentDf(indx, alignDf,  AncIdLs, FastaIdLs, AllPrankAncAlnDf)
-        
-        #     """Count and store substiotion on each branch and make substitution matrix for each branch
-        #     """
-            
-        #     #make a single text file out of all ancestral events
-        #     os.popen(r"""
-        #               cat tmp.prank.aln.fa.events >> {}
-        #               """.format(ConcatAncEventsFl)).read()
-            
-        #     #store ancestral alignment in a dataframe
-        #     SeqDf = pd.DataFrame({'SpId':AncIdLs, 'FastaId':FastaIdLs}) #create fastaid, species dataframe
-        #     SeqDf.set_index('FastaId', inplace=True) #make fasta id the index column
-        #     #read the ancestral events file as a pandas series
-        #     AncEvnetsSer = pd.Series(os.popen(r"cat tmp.prank.aln.fa.events").read().split('\n'))
-        #     AncEvnetsSer = AncEvnetsSer[7:]
-        #     AncEvnetsSer = AncEvnetsSer[~(AncEvnetsSer == '')] # drop empty lines
-        #     for line in AncEvnetsSer:
-        #         line = line.split()
-        #         #print(line)
-        #         if line[0] == 'branch':
-        #             Branch = SeqDf.at[line[1], 'SpId']
-        #             # print(Branch)
-        #             AncSubResDf.loc[indx, Branch] = ''
-        #             AncSubCountDf.at[indx, Branch] = 0
-        #         if len(line)== 4 and line[2] == '->':
-        #             AncSubResDf.at[indx, Branch] = AncSubResDf.at[indx, Branch] + ("{}:{}|{},".format(line[0], line[1], line[3]))
-        #             AncSubCountDf.at[indx, Branch] = AncSubCountDf.at[indx, Branch] + 1
-
-        
+                
         #overlap length
         CommonDf.at[indx, 'overlap'] = len(GBalignDf)
         UnqRowVal = GBalignDf.nunique(axis=1)
@@ -260,25 +214,7 @@ def MSA(CommonDf):
         CommonDf.at[indx,'OneInOutId'] = len(OneInOutId)
         CommonDf.at[indx,'NoId'] = len(NoIdDf)
 
-        
-        """Pairwise alignment parsing"""
-        # CommonDf.at[indx, '{}_{}_Id'.format(Sp1Id, Sp2Id)
-        #             ] = PairwiseAlignmentParsing(GBalignDf, 0, 1)
-        # CommonDf.at[indx, '{}_{}_Id'.format(Sp1Id, Sp3Id)
-        #             ] = PairwiseAlignmentParsing(GBalignDf, 0, 2)
-        # CommonDf.at[indx, '{}_{}_Id'.format(Sp1Id, Sp4Id)
-        #             ] = PairwiseAlignmentParsing(GBalignDf, 0, 3)
-        # CommonDf.at[indx, '{}_{}_Id'.format(Sp2Id, Sp3Id)
-        #             ] = PairwiseAlignmentParsing(GBalignDf, 1, 2)
-        # CommonDf.at[indx, '{}_{}_Id'.format(Sp2Id, Sp4Id)
-        #             ] = PairwiseAlignmentParsing(GBalignDf, 1, 3)
-        # CommonDf.at[indx, '{}_{}_Id'.format(Sp3Id, Sp4Id)
-        #             ] = PairwiseAlignmentParsing(GBalignDf, 2, 3)
-
-        # n += 1
-        # if n > 10: break
-
-    
+            
     CommonDf['%AbsId'] = CommonDf['AbsId']*100/CommonDf['overlap']
     CommonDf['%Subs'] = 100 - CommonDf['%AbsId']
     CommonDf['%{}_Subs'.format(Sp1Id)] = CommonDf['{}_Subs'.format(Sp1Id)]*100/CommonDf['overlap']
@@ -291,18 +227,9 @@ def MSA(CommonDf):
     CommonDf['%OnlyOutGpId'] = CommonDf['OnlyOutGpId']*100/CommonDf['overlap']
     CommonDf['%OneInOutId'] = CommonDf['OneInOutId']*100/CommonDf['overlap']
     CommonDf['%NoId'] = CommonDf['NoId']*100/CommonDf['overlap']
-    # CommonDf['%_{}_{}_Id'.format(Sp1Id, Sp2Id)] = CommonDf['{}_{}_Id'.format(Sp1Id, Sp2Id)]*100/CommonDf['overlap']
-    # CommonDf['%_{}_{}_Id'.format(Sp1Id, Sp3Id)] = CommonDf['{}_{}_Id'.format(Sp1Id, Sp3Id)]*100/CommonDf['overlap']
-    # CommonDf['%_{}_{}_Id'.format(Sp1Id, Sp4Id)] = CommonDf['{}_{}_Id'.format(Sp1Id, Sp4Id)]*100/CommonDf['overlap']
-    # CommonDf['%_{}_{}_Id'.format(Sp2Id, Sp3Id)] = CommonDf['{}_{}_Id'.format(Sp2Id, Sp3Id)]*100/CommonDf['overlap']
-    # CommonDf['%_{}_{}_Id'.format(Sp2Id, Sp4Id)] = CommonDf['{}_{}_Id'.format(Sp2Id, Sp4Id)]*100/CommonDf['overlap']
-    # CommonDf['%_{}_{}_Id'.format(Sp3Id, Sp4Id)] = CommonDf['{}_{}_Id'.format(Sp3Id, Sp4Id)]*100/CommonDf['overlap']
     CommonDf.to_csv("{}/CommonDf.tsv".format(OutFocalSpDataDir), sep='\t', header=True, index=True)
     AllMafftAlnDf.to_csv("{}/mafft.aln.tsv".format(OutFocalSpDataDir), sep='\t', header=True, index=False)
     AllGblocksAlnDf.to_csv("{}/gblocks.aln.tsv".format(OutFocalSpDataDir), sep='\t', header=True, index=False)
-    # if int(args['ancestral']) == 1: AllPrankAncAlnDf.to_csv("{}/prank.anc.aln.tsv".format(OutFocalSpDataDir), sep='\t', header=True, index=False)
-    # AncSubResDf.to_csv("{}/AncStateSubsRes.tsv".format(OutFocalSpDataDir), sep='\t', header=True, index=True, na_rep='-')
-    # AncSubCountDf.to_csv("{}/AncStateSubsCount.tsv".format(OutFocalSpDataDir), sep='\t', header=True, index=True, na_rep=0)   
 
 
 def PairwiseAlignmentParsing(alignDf, Sp1Col, Sp2Col):
