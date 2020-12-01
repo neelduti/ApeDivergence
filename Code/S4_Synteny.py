@@ -138,8 +138,8 @@ def PairwiseAnalysis(ColDf, sp1, sp2, sp1Id, sp2Id, PepFlSp1, PepFlSp2, TransFlS
         with open('protein2.fasta', 'w') as fh: 
             PepSeq2 = PepSp2[row[sp2Id]].seq
             SeqIO.write(PepSp2[row[sp2Id]], fh, 'fasta')
-            if PepSeq2[-1] == '*': ColDf.at[indx,aaSp1] = len(PepSeq2) -1
-            else: ColDf.at[indx,aaSp1] = len(PepSeq2)
+            if PepSeq2[-1] == '*': ColDf.at[indx,aaSp2] = len(PepSeq2) -1
+            else: ColDf.at[indx,aaSp2] = len(PepSeq2)
         with open('transcripts.fasta', 'w') as fh: 
             SeqIO.write(TransSp1[row[sp1Id]], fh, 'fasta')
             SeqIO.write(TransSp2[row[sp2Id]], fh, 'fasta')
